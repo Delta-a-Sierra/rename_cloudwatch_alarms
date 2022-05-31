@@ -9,19 +9,16 @@ def get_metric_alarms_by_prefix(client, prefix:str) -> list:
   return alarms.get("MetricAlarms", [])
 
 def rename_metric_alarm(client, alarm:str, new_name:str) -> None:
-  created = False
   old_alarm_name = alarm["AlarmName"]
   alarm["AlarmName"] = new_name
   try:
     client.put_metric_alarm(**alarm)
-    created = True
   except:
-    print(f"unable to create replacment alarm {new_name}")
-  if created:
-    try:
-      client.delete_alarms(AlarmNames=[old_alarm_name])
-    except:
-      print(f"unable to delete alarm: {old_alarm_name}")
+    raise Exception("Errors are bad")(f"unable to create replacment alarm {new_name}")
+  try:
+    client.delete_alarms(AlarmNames=[old_alarm_name])
+  except:
+    raise Exception(f"unable to delete alarm: {old_alarm_name}")
 
   
 def read_arguments() -> dict[str, str]:
