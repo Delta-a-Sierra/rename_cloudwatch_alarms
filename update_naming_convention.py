@@ -28,12 +28,12 @@ def rename_metric_alarm(client, alarm:str, new_name:str) -> None:
     )
     created = True
   except:
-    print('failed to create replacement alarm')
+    print(f"unable to create replacment alarm {new_name}")
   if created:
     try:
       client.delete_alarms(AlarmNames=[alarm['AlarmName']])
     except:
-      print("unable to delete old alarm")
+      print(f"unable to delete alarm: {alarm['AlarmName']}")
 
   
 def read_arguments() -> dict[str, str]:
