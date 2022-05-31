@@ -29,11 +29,11 @@ def rename_metric_alarm_lowercase(client, alarm:str) -> None:
     created = True
   except:
     print(f"unable to create replacment alarm {alarm['AlarmName'].lower()}")
-    if created:
-      try:
-        client.delete_alarms(AlarmNames=[alarm['AlarmName']])
-      except:
-        print(f"unable to delete alarm: {alarm['AlarmName']}")
+  if created:
+    try:
+      client.delete_alarms(AlarmNames=[alarm['AlarmName']])
+    except:
+      print(f"unable to delete alarm: {alarm['AlarmName']}")
 
 
 def read_arguments() -> dict[str, str]:
