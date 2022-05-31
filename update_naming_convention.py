@@ -31,7 +31,7 @@ def rename_metric_alarm(alarm:str, new_name:str,region:str) -> None:
 
 def read_arguments() -> dict[str, str]:
   if(len(sys.argv)) < 5 or len(sys.argv) > 5 :
-    print(stylize("\nusage: python3 update_naming_convention.py [current] [desired]", colored.fg("red")))
+    print(stylize("\nusage: python3 update_naming_convention.py [prefix] [region] [current] [desired]", colored.fg("red")))
     exit()
   else:
     prefix = sys.argv[1]
