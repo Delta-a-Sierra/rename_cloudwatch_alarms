@@ -27,7 +27,7 @@ def rename_metric_alarm(alarm:str, new_name:str,region:str) -> None:
     Threshold=alarm['Threshold'],
     ComparisonOperator=alarm['ComparisonOperator']
   )
-  client.delete_alarms(AlarmNames=[alarm['AlarmName']]) # delets alarm with name in caps
+  client.delete_alarms(AlarmNames=[alarm['AlarmName']]) # deletes alarm with old name
 
 def read_arguments() -> dict[str, str]:
   if(len(sys.argv)) < 5 or len(sys.argv) > 5 :
