@@ -30,7 +30,7 @@ def rename_metric_alarm_lowercase(alarm:str, region:str) -> None:
   client.delete_alarms(AlarmNames=[alarm['AlarmName']]) # delets alarm with name in caps
 
 def read_arguments() -> dict[str, str]:
-  if(len(sys.argv)) < 3 or len(sys.argv) > 3 :
+  if(len(sys.argv)) != 3 :
     print(stylize("\nusage: python3 make_alarms_lowercase.py [prefix] [region]", colored.fg("red")))
     exit()
   else:
