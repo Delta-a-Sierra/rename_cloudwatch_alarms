@@ -8,16 +8,28 @@ def get_metric_alarms_by_prefix(client, prefix:str) -> list:
   return alarms.get("MetricAlarms", [])
 
 def rename_metric_alarm_lowercase(client, alarm:str) -> None:
-  old_alarm_name = alarm["AlarmName"]
-  alarm["AlarmName"] = alarm["AlarmName"].lower()
   try:
-    client.put_metric_alarm(**alarm)
+    client.put_metric_alarm(
+      AlarmName=(alarm['AlarmName'].lower()),
+      ActionsEnabled=alarm['ActionsEnabled'],
+      OKActions=alarm['OKActions'],
+      AlarmActions=alarm['AlarmActions'],
+      InsufficientDataActions=alarm['InsufficientDataActions'],
+      MetricName=alarm['MetricName'],
+      Namespace=alarm['Namespace'],
+      Statistic=alarm['Statistic'],
+      Dimensions=alarm['Dimensions'],
+      Period=alarm['Period'],
+      EvaluationPeriods=alarm['EvaluationPeriods'],
+      Threshold=alarm['Threshold'],
+      ComparisonOperator=alarm['ComparisonOperator']
+    )
   except:
     raise Exception(f"unable to create replacment alarm {alarm['AlarmName'].lower()}")
   try:
-    client.delete_alarms(AlarmNames=[old_alarm_name])
+    client.delete_alarms(AlarmNames=[alarm['AlarmName']])
   except:
-    raise Exception(f"unable to delete alarm: {old_alarm_name}")
+    raise Exception(f"unable to delete alarm: {alarm['AlarmName']}")
 
 def read_arguments() -> dict[str, str]:
   if(len(sys.argv)) != 3 :
