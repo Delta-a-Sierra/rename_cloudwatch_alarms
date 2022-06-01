@@ -43,7 +43,6 @@ if __name__ == '__main__':
   client = boto3.client('cloudwatch', region_name=region)
 
   for alarm in get_metric_alarms_by_prefix(client, prefix):
-    alarm_name_lower = alarm["AlarmName"].lower()
-    if alarm["AlarmName"] != alarm_name_lower: 
+    if alarm["AlarmName"] != alarm["AlarmName"].lower(): 
       rename_metric_alarm_lowercase(client, alarm)
 
