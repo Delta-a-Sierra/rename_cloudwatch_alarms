@@ -48,7 +48,7 @@ def rename_metric_alarm(client, alarm: str, new_name: str) -> None:
 
 
 def read_arguments() -> dict[str, str]:
-    if (len(sys.argv)) < 5 or len(sys.argv) > 5:
+    if (len(sys.argv)) != 5:
         print(
             stylize(
                 "\nusage: python3 update_naming_convention.py [prefix] [region] [current] [desired]",
