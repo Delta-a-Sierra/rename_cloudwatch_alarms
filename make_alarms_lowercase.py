@@ -1,23 +1,22 @@
-import sys
-
-import boto3
-import colored
-import logging
+import sys, boto3,logging , colored
 from colored import stylize
 
-
-
-
 def get_metric_alarms_by_prefix(client, prefix:str) -> list:
+  '''
+    Gets all metric alarms that begin with the given prefix
+  '''
   try:
     alarms = client.describe_alarms(AlarmNamePrefix=prefix)
     logging.info(f'Gathered all alarms matching prefix: {prefix}')
     return alarms.get("MetricAlarms", [])
   except Exception as error:
     logging.error(f"Unable to gather alarms. error: {error}")
-    exit()
+    raise
 
 def rename_metric_alarm_lowercase(client, alarm:str) -> None:
+  '''
+    Creates a clone of the given alarm with a lowercase name then deletes the old alarm.
+  '''
   try:
     client.put_metric_alarm(
       AlarmName=(alarm['AlarmName'].lower()),
@@ -34,12 +33,16 @@ def rename_metric_alarm_lowercase(client, alarm:str) -> None:
       Threshold=alarm['Threshold'],
       ComparisonOperator=alarm['ComparisonOperator']
     )
-  except:
-    raise Exception(f"unable to create replacment alarm {alarm['AlarmName'].lower()}")
+    logging.info(f"created replacement alarm {alarm['AlarmName'].lower()}")
+  except Exception as error:
+    logging.error(f"unable to create replacment alarm {alarm['AlarmName'].lower()}. error: {error}")
+    raise
   try:
     client.delete_alarms(AlarmNames=[alarm['AlarmName']])
-  except:
-    raise Exception(f"unable to delete alarm: {alarm['AlarmName']}")
+    logging.info(f"deleted alarm with uppercase name {alarm['AlarmName']}")
+  except Exception as error:
+    logging.error(f"unable to delete alarm: {alarm['AlarmName']}. error: {error}")
+    raise
 
 def read_arguments() -> dict[str, str]:
   if(len(sys.argv)) != 3 :
@@ -51,7 +54,11 @@ def read_arguments() -> dict[str, str]:
 
 if __name__ == '__main__':
   # setup
-  logging.basicConfig(filename='make_alarms_lowecase.log', format='%(asctime)s - %(levelname)s - %(message)s')
+  logging.basicConfig(
+    filename='make_alarms_lowercase.log', 
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    level=logging.INFO
+  )
   prefix, region = read_arguments()
   client = boto3.client('cloudwatch', region_name=region)
 
