@@ -1,3 +1,15 @@
+"""
+Description:
+  This script is used to update the name of all cloudwatch metric alarms that have a given prefix within a region to a lowecase value.
+
+Usage:
+  python3 make_alarms_lowercase.py [prefix] [region]  
+
+Example:
+  python3 make_alarms_lowercase.py contoso eu-west-2 dev prod
+  changes:  contoso-dev-SERVER01-cpu-high -> contoso-dev-server01-cpu-high
+"""
+
 import sys, boto3, logging, colored
 from colored import stylize
 

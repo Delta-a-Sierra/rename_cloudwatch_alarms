@@ -1,3 +1,16 @@
+"""
+Description:
+  This script is used to update a section of all cloudwatch metric alarms that have a given prefix within a region.
+  sections are deliminated by -
+
+Usage:
+  python3 update_naming_convention.py [prefix] [region] [current] [desired]  
+
+Example:
+  python3 update_naming_convention.py contoso eu-west-2 dev prod
+  changes:  contoso-dev-server01-cpu-high -> contoso-prod-server01-cpu-high
+"""
+
 import sys, boto3, logging, colored
 from colored import stylize
 
