@@ -68,6 +68,7 @@ if __name__ == '__main__':
   # exits script if no uppercase alarms are found
   if len(uppercase_alarms) == 0:
     print('No uppercase alarms to modify')
+    logging.info('No uppercase alarms to modify')
     exit() 
 
   # Display alarms and request confirmation before continuing script 
