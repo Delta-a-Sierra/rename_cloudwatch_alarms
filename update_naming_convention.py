@@ -76,6 +76,7 @@ if __name__ == "__main__":
         for alarm in get_metric_alarms_by_prefix(client, prefix)
         if current in alarm["AlarmName"].split("-")
     ]
+    # exits script if no suitable alarms are found
     if len(changeable_alarms) == 0:
         print("No alarms to modify")
         logging.info("No alarms to modify")
