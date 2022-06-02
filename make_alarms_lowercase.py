@@ -6,7 +6,7 @@ Usage:
   python3 make_alarms_lowercase.py [prefix] [region]  
 
 Example:
-  python3 make_alarms_lowercase.py contoso eu-west-2 dev prod
+  python3 make_alarms_lowercase.py contoso eu-west-2
   changes:  contoso-dev-SERVER01-cpu-high -> contoso-dev-server01-cpu-high
 """
 
