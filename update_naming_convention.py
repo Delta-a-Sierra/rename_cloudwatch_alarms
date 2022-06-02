@@ -11,8 +11,8 @@ Example:
   changes:  contoso-dev-server01-cpu-high -> contoso-prod-server01-cpu-high
 """
 
-import sys, boto3, logging, colored
-from colored import stylize
+import argparse, boto3, logging
+from ast import parse
 
 
 def get_metric_alarms_by_prefix(client, prefix: str) -> list:
@@ -60,34 +60,36 @@ def rename_metric_alarm(client, alarm: str, new_name: str) -> None:
         raise
 
 
-def read_arguments() -> dict[str, str]:
-    if (len(sys.argv)) != 5:
-        print(
-            stylize(
-                "\nusage: python3 update_naming_convention.py [prefix] [region] [current] [desired]",
-                colored.fg("red"),
-            )
-        )
-        exit()
-    else:
-        return sys.argv[1:]
-
-
 if __name__ == "__main__":
-    # setup
+    # setting up logger
     logging.basicConfig(
         filename="update_naming_convention.log",
         format="%(asctime)s - %(levelname)s - %(message)s",
         level=logging.INFO,
     )
-    prefix, region, current, desired = read_arguments()
-    client = boto3.client("cloudwatch", region_name=region)
+    # setting up cmd line argument parse
+    parser = argparse.ArgumentParser(
+        description="  This script is used to update a section of all cloudwatch metric alarms that have a given prefix\
+        within a region. sections are deliminated by -"
+    )
+    parser.add_argument(
+        "prefix", type=str, help="A prefix to match against when selecting alarms"
+    )
+    parser.add_argument(
+        "region", type=str, help="The region the CloudWatch alarms reside in"
+    )
+    parser.add_argument("current", type=str, help="Value you wish to change")
+    parser.add_argument("desired", type=str, help="The new value you desire")
+
+    args = parser.parse_args()
+
+    client = boto3.client("cloudwatch", region_name=args.region)
 
     # gets alarms where current string is in its name
     changeable_alarms = [
         alarm
-        for alarm in get_metric_alarms_by_prefix(client, prefix)
-        if current in alarm["AlarmName"].split("-")
+        for alarm in get_metric_alarms_by_prefix(client, args.prefix)
+        if args.current in alarm["AlarmName"].split("-")
     ]
     # exits script if no suitable alarms are found
     if len(changeable_alarms) == 0:
@@ -112,7 +114,7 @@ if __name__ == "__main__":
         for alarm in changeable_alarms:
             name_split = alarm["AlarmName"].split("-")
             for count, value in enumerate(name_split):
-                if value == current:
-                    name_split[count] = desired
+                if value == args.current:
+                    name_split[count] = args.desired
             new_name = "-".join(name_split)
             rename_metric_alarm(client, alarm, new_name)
