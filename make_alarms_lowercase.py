@@ -9,12 +9,10 @@ Example:
   python3 make_alarms_lowercase.py contoso eu-west-2
   changes:  contoso-dev-SERVER01-cpu-high -> contoso-dev-server01-cpu-high
 """
-
-import sys, boto3, logging, colored
-from colored import stylize
+import boto3, logging, argparse
 
 
-def get_metric_alarms_by_prefix(client, prefix: str) -> list:
+def get_metric_alarms_by_prefix(client: object, prefix: str) -> list:
     """
     Gets all metric alarms that begin with the given prefix
     """
@@ -27,7 +25,7 @@ def get_metric_alarms_by_prefix(client, prefix: str) -> list:
         raise
 
 
-def rename_metric_alarm_lowercase(client, alarm: str) -> None:
+def rename_metric_alarm_lowercase(client: object, alarm: str) -> None:
     """
     Creates a clone of the given alarm with a lowercase name then deletes the old alarm.
     """
@@ -61,33 +59,33 @@ def rename_metric_alarm_lowercase(client, alarm: str) -> None:
         raise
 
 
-def read_arguments() -> dict[str, str]:
-    if (len(sys.argv)) != 3:
-        print(
-            stylize(
-                "\nusage: python3 make_alarms_lowercase.py [prefix] [region]",
-                colored.fg("red"),
-            )
-        )
-        exit()
-    else:
-        return sys.argv[1:]
-
-
 if __name__ == "__main__":
-    # setup
+    # setting up logger
     logging.basicConfig(
         filename="make_alarms_lowercase.log",
         format="%(asctime)s - %(levelname)s - %(message)s",
         level=logging.INFO,
     )
-    prefix, region = read_arguments()
-    client = boto3.client("cloudwatch", region_name=region)
+
+    # setting up cmd line argument parse
+    parser = argparse.ArgumentParser(
+        description="This script is used to update the name of all cloudwatch alarms\
+            that have a given prefix within a region to a lowecase value."
+    )
+    parser.add_argument(
+        "prefix", type=str, help="A prefix to match against when selecting alarms"
+    )
+    parser.add_argument(
+        "region", type=str, help="The region the CloudWatch alarms reside in"
+    )
+    args = parser.parse_args()
+
+    client = boto3.client("cloudwatch", region_name=args.region)
 
     # Gather alarms and seperates out the uppercase alarms
     uppercase_alarms = [
         alarm
-        for alarm in get_metric_alarms_by_prefix(client, prefix)
+        for alarm in get_metric_alarms_by_prefix(client, args.prefix)
         if alarm["AlarmName"] != alarm["AlarmName"].lower()
     ]
 
