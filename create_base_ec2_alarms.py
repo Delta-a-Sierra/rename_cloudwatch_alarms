@@ -67,8 +67,7 @@ def get_running_instances() -> list[dict]:
     return sorted(instances, key=itemgetter("name"))
 
 
-def create_alarm(name, instance_id, alarm) -> None:
-    client = boto3.client("cloudwatch", region_name="eu-west-2")
+def create_alarm(name, instance_id, alarm, client) -> None:
     try:
         client.put_metric_alarm(
             AlarmName=name,
@@ -119,15 +118,7 @@ def run_interactive() -> None:
     prefix = "test"
     # Get instances
     instances = get_running_instances()
-    # instances = [
-    #     {"id": "i-0bd7b5b90a55c99a0", "name": "jack-test-linux"},
-    #     {"id": "i-067f92183914c3ca6", "name": "mob-sandpit-gitlab-ec2"},
-    #     {"id": "i-0a9b39b39dd066783", "name": "nd-server-2022-hardening"},
-    #     {"id": "i-013dc5270899e3e79", "name": "safehouse-poc-logstash"},
-    #     {"id": "i-019ca74a51251e863", "name": "tna-dev-server"},
-    #     {"id": "i-092063d7db17e4aa2", "name": "tna-enviroment-demo"},
-    #     {"id": "i-0ac14e492eccff162", "name": "tna-enviroment-demo-1"},
-    # ]
+
     # Print Instances out to terminal
     print("\nRunning Instances\n------------------")
     for index, instance in enumerate(instances):
@@ -189,6 +180,7 @@ def run_interactive() -> None:
                 f"{prefix}-{instance['name']}-{alarm_name}",
                 instance["id"],
                 alarms[alarm_name],
+                client,
             )
 
 
