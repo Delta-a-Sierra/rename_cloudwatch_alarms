@@ -68,22 +68,10 @@ def get_running_instances() -> list[dict]:
 
 
 def create_alarm(name, instance_id, alarm, client) -> None:
+    alarm["Dimensions"][0] = {"Name": "InstanceId", "Value": instance_id}
+    alarm["AlarmName"] = name
     try:
-        client.put_metric_alarm(
-            AlarmName=name,
-            ActionsEnabled=alarm["ActionsEnabled"],
-            OKActions=alarm["OKActions"],
-            AlarmActions=alarm["AlarmActions"],
-            InsufficientDataActions=alarm["InsufficientDataActions"],
-            MetricName=alarm["MetricName"],
-            Namespace=alarm["Namespace"],
-            Statistic=alarm["Statistic"],
-            Dimensions=[{"Name": "InstanceId", "Value": instance_id}],
-            Period=alarm["Period"],
-            EvaluationPeriods=alarm["EvaluationPeriods"],
-            Threshold=alarm["Threshold"],
-            ComparisonOperator=alarm["ComparisonOperator"],
-        )
+        client.put_metric_alarm(**alarm)
         logging.info(f"created alarm {name}")
         print(f"created alarm {name}")
     except Exception as error:
