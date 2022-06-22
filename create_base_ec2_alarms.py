@@ -1,5 +1,5 @@
 from operator import itemgetter
-import boto3, logging, argparse
+import boto3, logging, argparse, csv
 
 
 alarms = {
@@ -114,8 +114,7 @@ def shrink_to_choices(choice, list) -> list:
     return temp
 
 
-def run_interactive() -> None:
-    prefix = "test"
+def run_interactive(prefix) -> None:
     # Get instances
     instances = get_running_instances()
 
@@ -184,8 +183,28 @@ def run_interactive() -> None:
             )
 
 
-def alarms_from_csv() -> None:
-    print("creating from csv")
+# TODO error handle csv reading
+def alarms_from_csv(filepath, prefix) -> None:
+    with open(filepath, mode="r") as csv_file:
+        csv_reader = csv.DictReader(csv_file)
+        instance_alarms = []
+        for row in csv_reader:
+            instance_alarms.append(
+                {
+                    "name": row["name"],
+                    "id": row["instance_id"],
+                    "alarms": [alarm for alarm in row["alarms"].split(" ")],
+                }
+            )
+    client = boto3.client("cloudwatch")
+    for instance in instance_alarms:
+        for alarm_name in instance["alarms"]:
+            create_alarm(
+                f"{prefix}-{instance['name']}-{alarm_name}",
+                instance["id"],
+                alarms[alarm_name],
+                client,
+            )
 
 
 def main() -> None:
@@ -214,13 +233,12 @@ def main() -> None:
     )
 
     args = parser.parse_args()
+    prefix = "test"
 
     if args.i:
-        run_interactive()
+        run_interactive(prefix)
     else:
-        alarms_from_csv()
-
-    print(args)
+        alarms_from_csv(args.f, prefix)
 
 
 if __name__ == "__main__":
